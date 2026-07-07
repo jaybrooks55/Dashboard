@@ -7,6 +7,21 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Supabase invite/recovery links land here with tokens in the URL hash
+      // and log the user in automatically. Capture the link's intent *before*
+      // the Supabase client (loaded next) parses and strips that hash, so the
+      // app can route the user to a "set password" screen instead of just
+      // dropping them on the dashboard with no password ever set.
+      (function () {
+        var hash = window.location.hash || "";
+        if (hash.indexOf("type=invite") !== -1) {
+          sessionStorage.setItem("pendingAuthAction", "invite");
+        } else if (hash.indexOf("type=recovery") !== -1) {
+          sessionStorage.setItem("pendingAuthAction", "recovery");
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

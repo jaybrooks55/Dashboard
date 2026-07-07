@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
+import SetPassword from "./pages/SetPassword";
 import DailyBriefing from "./pages/DailyBriefing";
 import Todos from "./pages/Todos";
 import Calendar from "./pages/Calendar";
@@ -14,6 +15,8 @@ export default function App() {
       <Route path="/login" element={<Login />} />
 
       <Route element={<ProtectedRoute />}>
+        <Route path="/set-password" element={<SetPassword />} />
+
         <Route element={<Layout />}>
           <Route path="/" element={<DailyBriefing />} />
           <Route path="/todos" element={<Todos />} />
