@@ -414,6 +414,7 @@ export type Database = {
           provider: string
           refresh_token_secret_id: string | null
           scope: string | null
+          synced_calendar_ids: string[]
           updated_at: string
         }
         Insert: {
@@ -426,6 +427,7 @@ export type Database = {
           provider: string
           refresh_token_secret_id?: string | null
           scope?: string | null
+          synced_calendar_ids?: string[]
           updated_at?: string
         }
         Update: {
@@ -438,6 +440,7 @@ export type Database = {
           provider?: string
           refresh_token_secret_id?: string | null
           scope?: string | null
+          synced_calendar_ids?: string[]
           updated_at?: string
         }
         Relationships: []
@@ -553,6 +556,15 @@ export type Database = {
     }
     Functions: {
       is_household_member: { Args: never; Returns: boolean }
+      read_oauth_secret: { Args: { secret_id: string }; Returns: string }
+      store_oauth_secret: {
+        Args: { secret_name?: string; secret_value: string }
+        Returns: string
+      }
+      update_oauth_secret: {
+        Args: { secret_id: string; secret_value: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
