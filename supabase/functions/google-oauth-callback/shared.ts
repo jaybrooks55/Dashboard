@@ -101,7 +101,7 @@ export async function getValidAccessToken(
 
 export const corsHeaders: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
   "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
 };
 
@@ -110,4 +110,109 @@ export function jsonResponse(body: unknown, status = 200): Response {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+interface GoogleEvent {
+  id: string;
+  status?: string;
+  summary?: string;
+  description?: string;
+  location?: string;
+  start?: { dateTime?: string; date?: string };
+  end?: { dateTime?: string; date?: string };
+}
+
+const WINDOW_DAYS_PAST = 7;
+const WINDOW_DAYS_FUTURE = 60;
+
+export interface OAuthConnectionRow {
+  id: string;
+  owner_id: string;
+  access_token_secret_id: string;
+  refresh_token_secret_id: string;
+  expires_at: string | null;
+  synced_calendar_ids: string[];
+}
+
+// Shared by the on-demand "Sync now" button (one connection, JWT-authenticated)
+// and the cron job (every connection, secret-header-authenticated).
+export async function syncConnectionEvents(
+  admin: SupabaseClient,
+  connection: OAuthConnectionRow,
+): Promise<{ synced: number; deleted: number }> {
+  const calendarIds = connection.synced_calendar_ids ?? [];
+  if (calendarIds.length === 0) return { synced: 0, deleted: 0 };
+
+  const accessToken = await getValidAccessToken(admin, connection);
+
+  const timeMin = new Date(Date.now() - WINDOW_DAYS_PAST * 86_400_000).toISOString();
+  const timeMax = new Date(Date.now() + WINDOW_DAYS_FUTURE * 86_400_000).toISOString();
+
+  let upserts = 0;
+  let deletions = 0;
+
+  for (const calendarId of calendarIds) {
+    const params = new URLSearchParams({
+      timeMin,
+      timeMax,
+      singleEvents: "true",
+      orderBy: "startTime",
+      maxResults: "250",
+    });
+    const resp = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?${params.toString()}`,
+      { headers: { Authorization: `Bearer ${accessToken}` } },
+    );
+    if (!resp.ok) {
+      console.error(`Failed to fetch events for ${calendarId}: ${resp.status} ${await resp.text()}`);
+      continue;
+    }
+    const json = await resp.json();
+    const events: GoogleEvent[] = json.items ?? [];
+
+    const rows = [];
+    const cancelledIds: string[] = [];
+
+    for (const event of events) {
+      if (event.status === "cancelled") {
+        cancelledIds.push(event.id);
+        continue;
+      }
+      if (!event.start) continue;
+      const allDay = !event.start.dateTime;
+      rows.push({
+        title: event.summary || "(untitled)",
+        description: event.description ?? null,
+        location: event.location ?? null,
+        start_time: event.start.dateTime ?? `${event.start.date}T00:00:00Z`,
+        end_time: event.end?.dateTime ?? (event.end?.date ? `${event.end.date}T00:00:00Z` : null),
+        all_day: allDay,
+        source: "google",
+        external_id: event.id,
+        created_by: connection.owner_id,
+      });
+    }
+
+    if (rows.length > 0) {
+      const { error: upsertError } = await admin
+        .from("calendar_events")
+        .upsert(rows, { onConflict: "source,external_id" });
+      if (upsertError) {
+        console.error(`Upsert failed for ${calendarId}:`, upsertError.message);
+      } else {
+        upserts += rows.length;
+      }
+    }
+
+    if (cancelledIds.length > 0) {
+      const { error: deleteError, count } = await admin
+        .from("calendar_events")
+        .delete({ count: "exact" })
+        .eq("source", "google")
+        .in("external_id", cancelledIds);
+      if (!deleteError) deletions += count ?? 0;
+    }
+  }
+
+  return { synced: upserts, deleted: deletions };
 }
