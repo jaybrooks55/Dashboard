@@ -8,10 +8,6 @@ import Todos from "./pages/Todos";
 import Calendar from "./pages/Calendar";
 import Journal from "./pages/Journal";
 import StubPage from "./pages/StubPage";
-import OldTestament from "./pages/bible/OldTestament";
-import NewTestament from "./pages/bible/NewTestament";
-import KeyPeople from "./pages/bible/KeyPeople";
-import Lineage from "./pages/bible/Lineage";
 
 export default function App() {
   return (
@@ -92,11 +88,6 @@ export default function App() {
               />
             }
           />
-
-          <Route path="/bible/old-testament" element={<OldTestament />} />
-          <Route path="/bible/new-testament" element={<NewTestament />} />
-          <Route path="/bible/people" element={<KeyPeople />} />
-          <Route path="/bible/lineage" element={<Lineage />} />
         </Route>
       </Route>
     </Routes>

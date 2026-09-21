@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import BibleLayout from "../../components/bible/BibleLayout";
-import PersonCard from "../../components/bible/PersonCard";
-import { keyPeople } from "../../data/bible/keyPeople";
+import Layout from "../components/Layout";
+import PersonCard from "../components/PersonCard";
+import { keyPeople } from "../data/keyPeople";
 
 type Filter = "All" | "Old" | "New";
 
@@ -20,7 +20,7 @@ export default function KeyPeople() {
   );
 
   return (
-    <BibleLayout
+    <Layout
       title="Key People of the Bible"
       subtitle="Portraits of the patriarchs, prophets, kings, and apostles whose stories carry the biblical narrative from Eden to the early Church."
     >
@@ -46,6 +46,6 @@ export default function KeyPeople() {
           <PersonCard key={person.id} person={person} />
         ))}
       </div>
-    </BibleLayout>
+    </Layout>
   );
 }

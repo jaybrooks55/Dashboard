@@ -1,4 +1,4 @@
-import type { TimelineEntry } from "../../data/bible/types";
+import type { TimelineEntry } from "../data/types";
 import TimelineEntryCard from "./TimelineEntryCard";
 
 function groupByEra(entries: TimelineEntry[]): { era: string; items: TimelineEntry[] }[] {
@@ -21,7 +21,7 @@ export default function EraTimeline({ entries }: { entries: TimelineEntry[] }) {
     <div className="space-y-12">
       {groups.map((group) => (
         <section key={group.era}>
-          <div className="sticky top-0 z-10 -mx-4 mb-6 bg-parchment-50/95 px-4 py-3 backdrop-blur-sm sm:-mx-8 sm:px-8">
+          <div className="sticky top-14 z-10 -mx-4 mb-6 bg-parchment-50/95 px-4 py-3 backdrop-blur-sm sm:-mx-8 sm:px-8">
             <h2 className="font-display text-center text-lg font-semibold uppercase tracking-[0.2em] text-maroon-700 sm:text-xl">
               {group.era}
             </h2>
