@@ -31,15 +31,6 @@ const navGroups: { label: string; items: { to: string; label: string }[] }[] = [
       { to: "/recap", label: "Daily Recap" },
     ],
   },
-  {
-    label: "Bible",
-    items: [
-      { to: "/bible/old-testament", label: "Old Testament" },
-      { to: "/bible/new-testament", label: "New Testament" },
-      { to: "/bible/people", label: "Key People" },
-      { to: "/bible/lineage", label: "Lineage of Jesus" },
-    ],
-  },
 ];
 
 export default function Layout() {

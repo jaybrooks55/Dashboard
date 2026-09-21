@@ -1,4 +1,4 @@
-import type { BiblePerson } from "../../data/bible/types";
+import type { BiblePerson } from "../data/types";
 
 export default function PersonCard({ person }: { person: BiblePerson }) {
   return (

@@ -1,6 +1,6 @@
-import BibleLayout from "../../components/bible/BibleLayout";
-import { lukeLineage, matthewLineage } from "../../data/bible/lineage";
-import type { Lineage as LineageData } from "../../data/bible/types";
+import Layout from "../components/Layout";
+import { lukeLineage, matthewLineage } from "../data/lineage";
+import type { Lineage as LineageData } from "../data/types";
 
 function LineageChain({ lineage }: { lineage: LineageData }) {
   return (
@@ -37,7 +37,7 @@ function LineageChain({ lineage }: { lineage: LineageData }) {
 
 export default function LineagePage() {
   return (
-    <BibleLayout
+    <Layout
       title="The Lineage of Jesus"
       subtitle="The New Testament records two genealogies of Jesus Christ — Matthew's and Luke's — which agree from Abraham to David but diverge afterward. Both are given here in full, in the words of the King James Version."
     >
@@ -53,6 +53,6 @@ export default function LineagePage() {
         <LineageChain lineage={matthewLineage} />
         <LineageChain lineage={lukeLineage} />
       </div>
-    </BibleLayout>
+    </Layout>
   );
 }

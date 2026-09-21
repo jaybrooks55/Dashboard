@@ -1,4 +1,4 @@
-import type { TimelineEntry } from "../../data/bible/types";
+import type { TimelineEntry } from "../data/types";
 
 export default function TimelineEntryCard({ entry }: { entry: TimelineEntry }) {
   return (
